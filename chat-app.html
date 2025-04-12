@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All-in-One Chat Management System</title>
+    <style>
+        :root {
+            --primary-color: #5e60ce;
+            --secondary-color: #5390d9;
+            --bg-color: #f4f6f8;
+            --sidebar-bg: #ffffff;
+            --chat-list-bg: #f8f7f7;
+            --chat-area-bg: #e9f5eb;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-radius: 12px;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --app-active-bg: #efefef;
+            --header-height: 60px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .app-sidebar {
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid-icon {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 2px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .grid-cell {
+            background-color: var(--primary-color);
+            border-radius: 1px;
+        }
+
+        .app-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .app-item:hover {
+            background-color: rgba(94, 96, 206, 0.1);
+        }
+
+        .app-item.active {
+            background-color: var(--app-active-bg);
+        }
+
+        .app-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .app-icon img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .app-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .add-app-btn {
+            position: absolute;
+            top: 25px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-app-btn:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .chat-container {
+            display: flex;
+            flex: 1;
+        }
+
+        .chat-list {
+            width: 320px;
+            background-color: var(--chat-list-bg);
+            position: relative;
+        }
+
+        .chat-list-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .search-icon {
+            font-size: 20px;
+            color: var(--text-light);
+            margin-right: 10px;
+        }
+
+        .search-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+            color: var(--text-primary);
+            width: 100%;
+        }
+
+        .chat-list-content {
+            padding: 10px;
+            height: calc(100% - var(--header-height));
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-item:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9e9e9;
+        }
+
+        .user-initial {
+            color: var(--text-secondary);
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .chat-details {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+
+        .chat-message {
+            font-size: 13px;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        .chat-area {
+            flex: 1;
+            background-color: var(--chat-area-bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background-color: white;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 25px;
+            margin: 15px;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+
+        .attachment-btn {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            color: var(--text-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        .emoji-btn {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            color: var(--text-light);
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: var(--text-primary);
+            padding: 10px 0;
+        }
+
+        .send-btn {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+        }
+
+        .notification-bell {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .notification-bell:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background-color: #ff5252;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 20px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .close-modal {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: #eee;
+            color: var(--text-secondary);
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #ddd;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 1200px) {
+            .app-sidebar {
+                width: 80px;
+                padding: 20px 10px;
+            }
+
+            .app-name, .app-title span {
+                display: none;
+            }
+
+            .app-icon {
+                margin-right: 0;
+            }
+
+            .app-item {
+                justify-content: center;
+            }
+
+            .add-app-btn {
+                right: 50%;
+                transform: translateX(50%);
+            }
+
+            .chat-list {
+                width: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chat-list {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- App Sidebar -->
+    <div class="app-sidebar">
+        <div class="app-header">
+            <div class="app-title">
+                <div class="grid-icon">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <span>Apps</span>
+            </div>
+        </div>
+        
+        <div class="add-app-btn" onclick="openAddAppModal()">+</div>
+
+        <div class="app-item active" data-app="messenger">
+            <div class="app-icon" style="background-color: #0084ff;">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogIDxwYXRoIGQ9Ik0yMSAxMS41YTguMzggOC4zOCAwIDAgMS0uOSAzLjhBOC41IDguNSAwIDAgMSAxMi4yIDIwLjhhOC4zOCA4LjM4IDAgMCAxLTMuOC0uOUw2IDIxbDEuOS0zLjRhOC4zOCA4LjM4IDAgMCAxLS45LTMuOCA4LjUgOC41IDAgMCAxIDQuNy03LjYgOC4zOCA4LjM4IDAgMCAxIDMuOC0uOWguNWE4LjQ4IDguNDggMCAwIDEgOCA4di41eiI+PC9wYXRoPgo8L3N2Zz4=" alt="Messenger" />
+            </div>
+            <div class="app-name">Messenger</div>
+        </div>
+
+        <div class="app-item" data-app="whatsapp">
+            <div class="app-icon" style="background-color: #25D366;">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogIDxwYXRoIGQ9Ik0yMS4xMSAzLjQ1QTEwLjY0IDEwLjY0IDAgMCAwIDMuMjggMTcuNzVMMiAyMmw0LjQ0LTEuMTdhMTAuNjQgMTAuNjQgMCAwIDAgMTQuOTMtMTQuNFoiPjwvcGF0aD4KICA8cGF0aCBkPSJNMTYuOSAxNC4yYTEuMDMgMS4wMyAwIDAgMS0uNTEuNCAxMiAxMiAwIDAgMS02LjMgMS43MSAxMC4xNiAxMC4xNiAwIDAgMS01LTEuMjQiPjwvcGF0aD4KICA8cGF0aCBkPSJNMTUuOSA5LjIxYTguNTggOC41OCAwIDAgMS0yLjEgNiI+PC9wYXRoPgo8L3N2Zz4=" alt="WhatsApp" />
+            </div>
+            <div class="app-name">WhatsApp</div>
+        </div>
+
+        <div class="app-item" data-app="instagram">
+            <div class="app-icon" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogIDxyZWN0IHg9IjIiIHk9IjIiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgcng9IjUiIHJ5PSI1Ij48L3JlY3Q+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgc3Ryb2tlPSJ3aGl0ZSI+PC9jaXJjbGU+CiAgPGxpbmUgeDE9IjE3LjUiIHkxPSI2LjUiIHgyPSIxNy41MSIgeTI9IjYuNSI+PC9saW5lPgo8L3N2Zz4=" alt="Instagram" />
+            </div>
+            <div class="app-name">Instagram</div>
+        </div>
+
+        <div class="app-item" data-app="discord">
+            <div class="app-icon" style="background-color: #5865F2;">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogIDxjaXJjbGUgY3g9IjkiIGN5PSIxMiIgcj0iMSI+PC9jaXJjbGU+CiAgPGNpcmNsZSBjeD0iMTUiIGN5PSIxMiIgcj0iMSI+PC9jaXJjbGU+CiAgPHBhdGggZD0iTTcuNSAxMC41QzguNSA5LjUgMTAgOSAxMiA5czMuNS41IDQuNSAxLjUiPjwvcGF0aD4KICA8cGF0aCBkPSJNNCAyMmgxNmE0IDQgMCAwIDAgMC04SDRhNCA0IDAgMCAwIDAgOFoiPjwvcGF0aD4KICA8cGF0aCBkPSJNOS4yIDZ2MiI+PC9wYXRoPgogIDxwYXRoIGQ9Ik0xNC44IDZ2MiI+PC9wYXRoPgo8L3N2Zz4=" alt="Discord" />
+            </div>
+            <div class="app-name">Discord</div>
+        </div>
+
+        <div class="app-item" data-app="snapchat">
+            <div class="app-icon" style="background-color: #FFFC00;">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+CiAgPHBhdGggZD0iTTEyIDE5Yy0zLjMgMC02LTIuNy02LTZWMTBjMC0zLjMgMi43LTYgNi02czYgMi43IDYgNnYzYzAgMy4zLTIuNyA2LTYgNnoiPjwvcGF0aD4KICA8cGF0aCBkPSJNOCA5di02Ij48L3BhdGg+CiAgPHBhdGggZD0iTTE2IDl2LTYiPjwvcGF0aD4KICA8cGF0aCBkPSJNMTMgMThjLTIuMiAwLTQtMS44LTQtNCI+PC9wYXRoPgo8L3N2Zz4=" alt="Snapchat" />
+            </div>
+            <div class="app-name">Snapchat</div>
+        </div>
+
+        <div class="app-item" data-app="reddit">
+            <div class="app-icon" style="background-color: #FF4500;">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogIDxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjkiPjwvY2lyY2xlPgogIDxjaXJjbGUgY3g9IjkiIGN5PSIxMiIgcj0iMS41Ij48L2NpcmNsZT4KICA8Y2lyY2xlIGN4PSIxNSIgY3k9IjEyIiByPSIxLjUiPjwvY2lyY2xlPgogIDxwYXRoIGQ9Ik02LjYgMTRoMTAuOGMuOCAzLTEwLjggMy0xMC44IDB6Ij48L3BhdGg+Cjwvc3ZnPg==" alt="Reddit" />
+            </div>
+            <div class="app-name">Reddit</div>
+        </div>
+
+        <div class="app-item" data-app="twitter">
+            <div class="app-icon" style="background-color: #000000;">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogIDxwYXRoIGQ9Ik0yMi40NiAyLjU3YTEwIDEwIDAgMCAxLTIuNzcgMS42MSAxMi45OSAxMi45OSAwIDAgMC00LjA3LTEuMzZBNC4yNyA0LjI3IDAgMCAwIDcuODggNS4yQzkuMDggNS4yIDEwIDQuOTEgMTEgNC4xOGE0LjgyIDQuODIgMCAwIDEtNC4yOSAzLjQ3Yy0yLjIxIDAtNC0xLjc5LTQtNHYtLjQ5YzAuMDUtMi4zMyAxLjg0LTQuMSA0LjE1LTQuMiAyLjMxLS4wOSA0LjI3IDEuNiA0LjQgMy45YTMuNTggMy41OCAwIDAgMSAyLjgzLTEuNDZBMy42MiAzLjYyIDAgMCAxIDE4IDEwdjMuNTEiPjwvcGF0aD4KICA8cGF0aCBkPSJNMTcgMTEuODlhMiAyIDAgMCAxLTEuODMgLjU5IDIgMiAwIDAgMS0xLjA1IDEuNyAyLjAyIDIuMDIgMCAwIDEtMS44NyAwYy0uMzgtLjE2LS43LS40LS45NS0uN2EyNC44OSAyNC44OSAwIDAgMS05LjAwNyA1LjRBMyAzIDAgMCAxIDMgMTlWMTNhMiAyIDAgMCAxIDItMmgxYTIgMiAwIDAgMSAyIDJ2NGEyIDIgMCAwIDEtMiAyek0yIDE5YTIgMiAwIDAgMCAyIDJoMTZhMiAyIDAgMCAwIDItMnYtM2gyLjVhMS41IDEuNSAwIDAgMCAxLjUtMS41di0yYTEuNSAxLjUgMCAwIDAtMS41LTEuNUgyMlY5YTMgMyAwIDAgMC0zLTNoLTFhMyAzIDAgMCAwLTMgM3YxLjVhMSAxIDAgMCAxLTEgMUgzYTEgMSAwIDAgMC0xIDF2MS41Ii8+Cjwvc3ZnPg==" alt="Twitter" />
+            </div>
+            <div class="app-name">X</div>
+        </div>
+
+        <div class="theme-toggle" onclick="toggleTheme()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </div>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container">
+        <!-- Chat List -->
+        <div class="chat-list">
+            <div class="chat-list-header">
+                <div class="search-container">
+                    <div class="search-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <input type="text" class="search-input" placeholder="Search chats...">
+                </div>
+            </div>
+            <div class="chat-list-content">
+                <div class="chat-item">
+                    <div class="chat-avatar">
+                        <div class="avatar-placeholder">
+                            <span class="user-initial">J</span>
+                        </div>
+                    </div>
+                    <div class="chat-details">
+                        <div class="chat-name">John Doe</div>
+                        <div class="chat-message">Hey, how's it going?</div>
+                    </div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-avatar">
+                        <div class="avatar-placeholder">
+                            <span class="user-initial">A</span>
+                        </div>
+                    </div>
+                    <div class="chat-details">
+                        <div class="chat-name">Alice Smith</div>
+                        <div class="chat-message">Did you see the new update?</div>
+                    </div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-avatar">
+                        <div class="avatar-placeholder">
+                            <span class="user-initial">M</span>
+                        </div>
+                    </div>
+                    <div class="chat-details">
+                        <div class="chat-name">Marketing Team</div>
+                        <div class="chat-message">Meeting at 3pm today</div>
+                    </div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-avatar">
+                        <div class="avatar-placeholder">
+                            <span class="user-initial">S</span>
+                        </div>
+                    </div>
+                    <div class="chat-details">
+                        <div class="chat-name">Sarah Johnson</div>
+                        <div class="chat-message">Thanks for your help!</div>
+                    </div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-avatar">
+                        <div class="avatar-placeholder">
+                            <span class="user-initial">D</span>
+                        </div>
+                    </div>
+                    <div class="chat-details">
+                        <div class="chat-name">David Wilson</div>
+                        <div class="chat-message">Can we reschedule?</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="notification-bell">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <div class="notification-badge">3</div>
+            </div>
+            
+            <div class="chat-input-container">
+                <button class="attachment-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                </button>
+                <button class="emoji-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                </button>
+                <input type="text" class="chat-input" placeholder="Start typing here...">
+                <button class="send-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add App Modal -->
+    <div class="modal" id="addAppModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New App</h3>
+                <button class="close-modal" onclick="closeAddAppModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="appName" class="form-label">App Name</label>
+                <input type="text" id="appName" class="form-input" placeholder="Enter app name">
+            </div>
+            <div class="form-group">
+                <label for="appColor" class="form-label">App Color</label>
+                <input type="color" id="appColor" class="form-input" value="#5e60ce">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddAppModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addNewApp()">Add App</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle active app
+        const appItems = document.querySelectorAll('.app-item');
+        appItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all items
+                appItems.forEach(app => app.classList.remove('active'));
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // You could also update the chat list content here based on selected app
+                // updateChatList(this.dataset.app);
+            });
+        });
+
+        // Add App Modal Functions
+        function openAddAppModal() {
+            document.getElementById('addAppModal').style.display = 'flex';
+        }
+
+        function closeAddAppModal() {
+            document.getElementById('addAppModal').style.display = 'none';
+        }
+
+        function addNewApp() {
+            const appName = document.getElementById('appName').value;
+            const appColor = document.getElementById('appColor').value;
+            
+            if (appName.trim() === '') {
+                alert('Please enter an app name');
+                return;
+            }
+            
+            // Create new app item
+            const appItem = document.createElement('div');
+            appItem.className = 'app-item';
+            appItem.dataset.app = appName.toLowerCase().replace(/\s+/g, '-');
+            
+            const appIcon = document.createElement('div');
+            appIcon.className = 'app-icon';
+            appIcon.style.backgroundColor = appColor;
+            
+            // Create a generic icon for the new app
+            appIcon.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="12" cy="12" r="5"></circle>
+                </svg>
+            `;
+            
+            const appNameDiv = document.createElement('div');
+            appNameDiv.className = 'app-name';
+            appNameDiv.textContent = appName;
+            
+            appItem.appendChild(appIcon);
+            appItem.appendChild(appNameDiv);
+            
+            // Add click event listener
+            appItem.addEventListener('click', function() {
+                appItems.forEach(app => app.classList.remove('active'));
+                this.classList.add('active');
+            });
+            
+            // Insert before the theme toggle
+            const themeToggle = document.querySelector('.theme-toggle');
+            document.querySelector('.app-sidebar').insertBefore(appItem, themeToggle);
+            
+            // Close modal and reset form
+            closeAddAppModal();
+            document.getElementById('appName').value = '';
+        }
+
+        // Theme toggle function
+        function toggleTheme() {
+            const root = document.documentElement;
+            
+            if (root.style.getPropertyValue('--bg-color') === '#2d3748') {
+                // Switch to light theme
+                root.style.setProperty('--bg-color', '#f4f6f8');
+                root.style.setProperty('--sidebar-bg', '#ffffff');
+                root.style.setProperty('--chat-list-bg', '#f8f7f7');
+                root.style.setProperty('--chat-area-bg', '#e9f5eb');
+                root.style.setProperty('--text-primary', '#333333');
+                root.style.setProperty('--text-secondary', '#666666');
+                root.style.setProperty('--text-light', '#999999');
+                root.style.setProperty('--app-active-bg', '#efefef');
+            } else {
+                // Switch to dark theme
+                root.style.setProperty('--bg-color', '#2d3748');
+                root.style.setProperty('--sidebar-bg', '#1a202c');
+                root.style.setProperty('--chat-list-bg', '#2d3748');
+                root.style.setProperty('--chat-area-bg', '#283141');
+                root.style.setProperty('--text-primary', '#f7fafc');
+                root.style.setProperty('--text-secondary', '#e2e8f0');
+                root.style.setProperty('--text-light', '#a0aec0');
+                root.style.setProperty('--app-active-bg', '#3a4a5e');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addAppModal');
+            if (event.target === modal) {
+                closeAddAppModal();
+            }
+        }
+    </script>
+</body>
+</html>
